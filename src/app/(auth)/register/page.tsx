@@ -15,6 +15,10 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { add, userSelector } from "@/src/store/slices/userSlice";
+import { useAppDispatch } from "@/src/store/store";
 
 interface User {
 	username: string;
@@ -24,6 +28,7 @@ interface User {
 type Props = {};
 
 export default function Register({}: Props) {
+	const router = useRouter();
 	const initialValue: User = { username: "admin", password: "" };
 
 	const formValidateSchema = Yup.object().shape({
@@ -35,6 +40,9 @@ export default function Register({}: Props) {
 		// }),
 		password: Yup.string().required("Password is require").trim(),
 	});
+
+	const reducer = useSelector(userSelector);
+	const dispatch = useAppDispatch();
 
 	const {
 		control,
@@ -121,10 +129,10 @@ export default function Register({}: Props) {
 
 				<Button
 					className="mt-4"
-					// onClick={() => {
-					// 	dispatch(add());
-					// 	router.push("/login");
-					// }}
+					onClick={() => {
+						dispatch(add());
+						router.push("/login");
+					}}
 					type="button"
 					fullWidth
 					variant="outlined"
@@ -145,7 +153,7 @@ export default function Register({}: Props) {
 				/> */}
 				<CardContent>
 					<Typography gutterBottom variant="h5" component="h2">
-						Register
+						Register ({reducer.count})
 					</Typography>
 					{showForm()}
 				</CardContent>

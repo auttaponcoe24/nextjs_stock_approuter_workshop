@@ -15,6 +15,10 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { add, userSelector } from "@/src/store/slices/userSlice";
+import { useAppDispatch } from "@/src/store/store";
 
 interface User {
 	username: string;
@@ -24,17 +28,17 @@ interface User {
 type Props = {};
 
 export default function Login({}: Props) {
+	const router = useRouter();
 	const initialValue: User = { username: "admin", password: "" };
 
 	const formValidateSchema = Yup.object().shape({
 		username: Yup.string().required("Username is require").trim(),
-		// username: Yup.string().test("username", () => {
-		// 	(_value: string) => {
-		// 		return _value != "admin" ? true : "Error 555";
-		// 	};
-		// }),
 		password: Yup.string().required("Password is require").trim(),
 	});
+
+	// const reducer = useSelector((state: any) => state.userReducer);
+	const reducer = useSelector(userSelector);
+	const dispatch = useAppDispatch();
 
 	const {
 		control,
@@ -121,15 +125,15 @@ export default function Login({}: Props) {
 
 				<Button
 					className="mt-4"
-					// onClick={() => {
-					// 	dispatch(add());
-					// 	router.push("/login");
-					// }}
+					onClick={() => {
+						dispatch(add());
+						router.push("/register");
+					}}
 					type="button"
 					fullWidth
 					variant="outlined"
 				>
-					Cancel
+					Register
 				</Button>
 			</form>
 		);
@@ -145,7 +149,7 @@ export default function Login({}: Props) {
 				/> */}
 				<CardContent>
 					<Typography gutterBottom variant="h5" component="h2">
-						Login
+						Login ({reducer.count})
 					</Typography>
 					{showForm()}
 				</CardContent>
