@@ -1,6 +1,7 @@
 "use client";
 
 import {
+	Alert,
 	Box,
 	Button,
 	Card,
@@ -17,7 +18,7 @@ import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { add, userSelector } from "@/src/store/slices/userSlice";
+import { add, signUp, userSelector } from "@/src/store/slices/userSlice";
 import { useAppDispatch } from "@/src/store/store";
 
 interface User {
@@ -56,8 +57,13 @@ export default function Register({}: Props) {
 	const showForm = () => {
 		return (
 			<form
-				onSubmit={handleSubmit((value: User) => {
-					alert(JSON.stringify(value));
+				onSubmit={handleSubmit(async (value: User) => {
+					const result = await dispatch(signUp(value));
+					if (signUp.fulfilled.match(result)) {
+						alert("Register successfully");
+					} else if (signUp.rejected.match(result)) {
+						alert("Register failed");
+					}
 				})}
 			>
 				{/* Username */}
@@ -116,13 +122,17 @@ export default function Register({}: Props) {
 					)}
 				/>
 
+				{reducer.status == "failed" && (
+					<Alert severity="error">Register failed.</Alert>
+				)}
+
 				<Button
 					className="mt-8"
 					type="submit"
 					fullWidth
 					variant="contained"
 					color="primary"
-					// disabled={reducer.status == "fetching"}
+					disabled={reducer.status == "fetching"}
 				>
 					Create
 				</Button>

@@ -32,7 +32,9 @@
       "@/store/*": [
         "./src/store/*"
       ],
-      // "@/utils/*": ["./src/utils/*"]
+      "@/utils/*": [
+        "./src/utils/*"
+      ]
     }
   },
   "include": [

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+	Alert,
 	Box,
 	Button,
 	Card,
@@ -17,7 +18,7 @@ import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { add, userSelector } from "@/src/store/slices/userSlice";
+import { add, signIn, userSelector } from "@/src/store/slices/userSlice";
 import { useAppDispatch } from "@/src/store/store";
 
 interface User {
@@ -52,8 +53,13 @@ export default function Login({}: Props) {
 	const showForm = () => {
 		return (
 			<form
-				onSubmit={handleSubmit((value: User) => {
-					alert(JSON.stringify(value));
+				onSubmit={handleSubmit(async (value: User) => {
+					const result = await dispatch(signIn(value));
+					if (signIn.fulfilled.match(result)) {
+						router.push(`/stock`);
+					} else if (signIn.rejected.match(result)) {
+						// alert("Login failed");
+					}
 				})}
 			>
 				{/* Username */}
@@ -112,6 +118,10 @@ export default function Login({}: Props) {
 					)}
 				/>
 
+				{reducer.status == "failed" && (
+					<Alert severity="error">Login failed.</Alert>
+				)}
+
 				<Button
 					className="mt-8"
 					type="submit"
@@ -120,7 +130,7 @@ export default function Login({}: Props) {
 					color="primary"
 					// disabled={reducer.status == "fetching"}
 				>
-					Create
+					Login
 				</Button>
 
 				<Button
