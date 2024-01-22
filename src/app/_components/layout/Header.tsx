@@ -11,8 +11,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import { Badge, Menu, MenuItem } from "@mui/material";
-// import { useAppDispatch } from "@/src/store/store";
-// import { signOut } from "@/src/store/slices/userSlice";
+import { useAppDispatch } from "@/src/store/store";
+import { signOut } from "@/src/store/slices/userSlice";
 import { useRouter } from "next/navigation";
 
 const drawerWidth = 240;
@@ -42,7 +42,7 @@ type Props = { handleDrawerOpen: any; open: boolean };
 
 const Header = ({ handleDrawerOpen, open }: Props) => {
 	const [showProfileMenu, setShowProfileMenu] = React.useState(false);
-	// const dispatch = useAppDispatch();
+	const dispatch = useAppDispatch();
 
 	const handleClose = () => {
 		setShowProfileMenu(false);
@@ -70,7 +70,12 @@ const Header = ({ handleDrawerOpen, open }: Props) => {
 				</Typography>
 				<Box sx={{ flexGrow: 1 }} />
 
-				<Typography variant="h6" noWrap component="div" fontWeight="300">
+				<Typography
+					variant="h6"
+					noWrap
+					component="div"
+					fontWeight="300"
+				>
 					Updated 2023
 				</Typography>
 				<Box sx={{ display: { xs: "none", md: "flex" } }}>
@@ -119,14 +124,16 @@ const Header = ({ handleDrawerOpen, open }: Props) => {
 					>
 						<MenuItem
 							onClick={async () => {
-								// const response = await dispatch(signOut());
-								// if (response.meta.requestStatus === "fulfilled")
-								//   router.push("/login");
+								const response = await dispatch(signOut());
+								if (response.meta.requestStatus === "fulfilled")
+									router.push("/login");
 							}}
 						>
 							Logout
 						</MenuItem>
-						<MenuItem onClick={() => handleClose}>My account</MenuItem>
+						<MenuItem onClick={() => handleClose}>
+							My account
+						</MenuItem>
 					</Menu>
 				</Box>
 			</Toolbar>

@@ -21,6 +21,12 @@ export async function GET(
 ): Promise<any> {
 	const route = context.params.route;
 
+	if (route === "signout") {
+		return signout(request);
+	} else if (route === "session") {
+		// return getSession(request);
+	}
+
 	return NextResponse.json({ route });
 }
 
@@ -36,11 +42,17 @@ export async function POST(
 	const route = context.params.route;
 	const body = await request.json();
 	if (route === "signin") {
-		return signin(body);
+		return singin(body);
 	}
 }
 
-async function signin(body: {
+function signout(request: NextRequest) {
+	const cookieStore = cookies();
+	cookieStore.delete(ACCESS_TOKEN_KEY);
+	return NextResponse.json({ result: "ok" });
+}
+
+async function singin(body: {
 	username: string;
 	password: string;
 }): Promise<any> {
@@ -53,8 +65,13 @@ async function signin(body: {
 			sameSite: "strict",
 			path: "/",
 		});
+
+		// console.log("Debug " + JSON.stringify(response.data));
 		return NextResponse.json(response.data);
 	} catch (error: any) {
 		return NextResponse.json({ result: "nok" });
 	}
 }
+// export async function PUT(request: Request) {}
+// export async function DELETE(request: Request) {}
+// export async function PATCH(request: Request) {}

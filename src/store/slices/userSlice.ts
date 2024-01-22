@@ -43,23 +43,30 @@ export const signIn = createAsyncThunk(
 	async (credential: SignAction) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		const response = await serverService.signIn(credential);
-
 		if (response.result != "ok") {
 			throw new Error("login failed");
 		}
 
 		// set access token
-		httpClient.interceptors.request.use((config?: AxiosRequestConfig | any) => {
-			if (config && config.headers) {
-				config.headers["Authorization"] = `Bearer ${response.token}`;
-			}
+		httpClient.interceptors.request.use(
+			(config?: AxiosRequestConfig | any) => {
+				if (config && config.headers) {
+					config.headers[
+						"Authorization"
+					] = `Bearer ${response.token}`;
+				}
 
-			return config;
-		});
+				return config;
+			}
+		);
 
 		return response;
 	}
 );
+
+export const signOut = createAsyncThunk("user/signout", async () => {
+	await serverService.signOut();
+});
 
 const userSlice = createSlice({
 	name: "user",
@@ -96,6 +103,13 @@ const userSlice = createSlice({
 		});
 		builder.addCase(signIn.rejected, (state) => {
 			state.status = "failed";
+			state.accessToken = "";
+			state.isAuthenticated = false;
+			state.isAuthenticating = false;
+		});
+
+		// Logout
+		builder.addCase(signOut.fulfilled, (state) => {
 			state.accessToken = "";
 			state.isAuthenticated = false;
 			state.isAuthenticating = false;
