@@ -1,24 +1,35 @@
-import { Box } from "@mui/material";
-import Image from "next/image";
-import React from "react";
+"use client";
 
-type Props = {};
+import * as React from "react";
+import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
 
-export default function Stock({}: Props) {
+const columns: GridColDef[] = [
+	{ field: "id", headerName: "ID", width: 70 },
+	{ field: "firstName", headerName: "First name", width: 130 },
+	{ field: "lastName", headerName: "Last name", width: 130 },
+];
+
+const rows = [
+	{ id: 1, lastName: "Snow", firstName: "Jon", age: 35 },
+	{ id: 2, lastName: "Lannister", firstName: "Cersei", age: 42 },
+	{ id: 3, lastName: "Lannister", firstName: "Jaime", age: 45 },
+	{ id: 4, lastName: "Stark", firstName: "Arya", age: 16 },
+];
+
+export default function Stock() {
 	return (
-		<>
-			{/* <div style={{ marginTop: 200 }}>page</div> */}
-			<Box sx={{ mt: 1 }}>
-				Stock
-				<Image
-					src="/static/img/next_login.jpg"
-					// src="https://www.codemobiles.com/biz/images/codemobiles_logo.svg?ref=10"
-					width={100}
-					height={35}
-					alt="logo"
-					style={{ objectFit: "contain" }}
-				/>
-			</Box>
-		</>
+		<div style={{ height: 400, width: "100%" }}>
+			<DataGrid
+				rows={rows}
+				columns={columns}
+				initialState={{
+					pagination: {
+						paginationModel: { page: 0, pageSize: 5 },
+					},
+				}}
+				pageSizeOptions={[5, 10]}
+				// checkboxSelection
+			/>
+		</div>
 	);
 }

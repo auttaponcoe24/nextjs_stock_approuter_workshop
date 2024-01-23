@@ -24,7 +24,7 @@ export async function GET(
 	if (route === "signout") {
 		return signout(request);
 	} else if (route === "session") {
-		// return getSession(request);
+		return getSession(request);
 	}
 
 	return NextResponse.json({ route });
@@ -46,12 +46,6 @@ export async function POST(
 	}
 }
 
-function signout(request: NextRequest) {
-	const cookieStore = cookies();
-	cookieStore.delete(ACCESS_TOKEN_KEY);
-	return NextResponse.json({ result: "ok" });
-}
-
 async function singin(body: {
 	username: string;
 	password: string;
@@ -69,8 +63,31 @@ async function singin(body: {
 		// console.log("Debug " + JSON.stringify(response.data));
 		return NextResponse.json(response.data);
 	} catch (error: any) {
+		return NextResponse.json({ result: "not ok" });
+	}
+}
+
+async function getSession(req: NextRequest) {
+	try {
+		const cookieStore = cookies();
+		const accessTokenKey = cookieStore.get(ACCESS_TOKEN_KEY);
+		if (!!accessTokenKey?.value) {
+			const response = await httpClient.get(`/authen/profile`, {
+				headers: { Authorization: `Bearer ${accessTokenKey?.value}` },
+			});
+			return NextResponse.json(response.data);
+		} else {
+			return NextResponse.json({ result: "nok" });
+		}
+	} catch (error) {
 		return NextResponse.json({ result: "nok" });
 	}
+}
+
+function signout(request: NextRequest) {
+	const cookieStore = cookies();
+	cookieStore.delete(ACCESS_TOKEN_KEY);
+	return NextResponse.json({ result: "ok" });
 }
 // export async function PUT(request: Request) {}
 // export async function DELETE(request: Request) {}
