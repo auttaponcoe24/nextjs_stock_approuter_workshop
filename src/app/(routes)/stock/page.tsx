@@ -10,18 +10,47 @@ import {
 	GridValueGetterParams,
 } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
-import { getProducts, productSelector } from "@/src/store/slices/productSlice";
+import {
+	deleteProduct,
+	getProducts,
+	productSelector,
+} from "@/src/store/slices/productSlice";
 import { useAppDispatch } from "@/src/store/store";
 import Image from "next/image";
 import { productImageURL } from "@/src/utils/commonUtil";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
-import { Fab, IconButton, Link, Stack, Typography } from "@mui/material";
+import {
+	Box,
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+	Fab,
+	Grid,
+	IconButton,
+	Link,
+	Stack,
+	Typography,
+} from "@mui/material";
 import { NumericFormat } from "react-number-format";
 import dayjs from "dayjs";
-import { Add, Delete, Edit } from "@mui/icons-material";
+import {
+	Add,
+	AddShoppingCart,
+	AssignmentReturn,
+	Delete,
+	Edit,
+	NewReleases,
+	Star,
+} from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { userSelector } from "@/src/store/slices/userSlice";
+import StockCard from "../../_components/common/StockCard";
+import { ProductData } from "@/src/models/product.model";
+import { useState, useEffect } from "react";
 
 export default function Stock() {
 	// const productSelector = (state: RootState) => state.productReducer;
@@ -31,8 +60,12 @@ export default function Stock() {
 	const userReducer = useSelector(userSelector);
 	const dispatch = useAppDispatch();
 	const router = useRouter();
+	const [openDialog, setOpenDialog] = useState(false);
+	const [selectedProduct, setSelectedProduct] = useState<ProductData | null>(
+		null
+	);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!userReducer.isAuthenticating) {
 			dispatch(getProducts());
 		}
@@ -122,8 +155,8 @@ export default function Stock() {
 						aria-label="delete"
 						size="large"
 						onClick={() => {
-							// setSelectedProduct(row);
-							// setOpenDialog(true);
+							setSelectedProduct(row);
+							setOpenDialog(true);
 						}}
 					>
 						<Delete fontSize="inherit" />
@@ -156,21 +189,116 @@ export default function Stock() {
 		</GridToolbarContainer>
 	);
 
+	const handleDeleteConfirm = async () => {
+		if (selectedProduct) {
+			const result = await dispatch(deleteProduct(String(selectedProduct.id)));
+			if (result.meta.requestStatus == "fulfilled") {
+				dispatch(getProducts());
+				setOpenDialog(false);
+			} else {
+				alert("Failed to delete");
+			}
+		}
+	};
+
+	const showDialog = () => {
+		if (selectedProduct === null) {
+			return;
+		}
+
+		return (
+			<Dialog
+				open={openDialog}
+				keepMounted
+				aria-labelledby="alert-dialog-slide-title"
+				aria-describedby="alert-dialog-slide-description"
+			>
+				<DialogTitle id="alert-dialog-slide-title">
+					<Image
+						width={100}
+						height={100}
+						alt="product image"
+						src={productImageURL(selectedProduct.image)}
+						style={{ width: 100, borderRadius: "5%", objectFit: "cover" }}
+					/>
+					<br />
+					Confirm to delete the product? : {selectedProduct.name}
+				</DialogTitle>
+				<DialogContent>
+					<DialogContentText id="alert-dialog-slide-description">
+						You cannot restore deleted product.
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setOpenDialog(false)} color="info">
+						Cancel
+					</Button>
+					<Button onClick={handleDeleteConfirm} color="primary">
+						Delete
+					</Button>
+				</DialogActions>
+			</Dialog>
+		);
+	};
+
 	return (
-		<div style={{ height: 400, width: "100%" }}>
+		<Box style={{ height: 400, width: "100%" }}>
+			{/* Cards */}
+			<Grid container style={{ marginBottom: 16 }} spacing={7}>
+				<Grid item lg={3} md={6} sm={12}>
+					<StockCard
+						icon={AddShoppingCart}
+						title="TOTAL"
+						subtitle="112 THB"
+						color="#00a65a"
+					/>
+				</Grid>
+
+				<Grid item lg={3} md={6} sm={12}>
+					<StockCard
+						icon={NewReleases}
+						title="EMPTY"
+						subtitle="9 PCS."
+						color="#f39c12"
+					/>
+				</Grid>
+
+				<Grid item lg={3} md={6} sm={12}>
+					<StockCard
+						icon={AssignmentReturn}
+						title="RETURN"
+						subtitle="1 PCS."
+						color="#dd4b39"
+					/>
+				</Grid>
+
+				<Grid item lg={3} md={6} sm={12}>
+					<StockCard
+						icon={Star}
+						title="LOSS"
+						subtitle="5 PCS."
+						color="#00c0ef"
+					/>
+				</Grid>
+			</Grid>
+
+			{/* Table */}
 			<DataGrid
+				sx={{ backgroundColor: "white", height: "70vh" }}
 				rows={productReducer.products}
 				columns={columns}
 				initialState={{
 					pagination: {
-						paginationModel: { page: 0, pageSize: 5 },
+						paginationModel: { pageSize: 10 },
 					},
 				}}
-				pageSizeOptions={[5, 10]}
+				pageSizeOptions={[10]}
 				slots={{
 					toolbar: CustomToolbar,
 				}}
 			/>
-		</div>
+
+			{showDialog()}
+		</Box>
 	);
 }
