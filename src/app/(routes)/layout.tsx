@@ -28,7 +28,9 @@ export default function DefaultLayout({ children }: Props) {
 
 				<Box component="main" sx={{ flexGrow: 1, p: 3 }}>
 					<DrawerHeader />
+					{/* <React.Suspense fallback={<span>1234</span>}> */}
 					{children}
+					{/* </React.Suspense> */}
 				</Box>
 			</Box>
 		</section>

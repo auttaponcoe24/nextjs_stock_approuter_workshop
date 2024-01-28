@@ -7,7 +7,7 @@ type signProps = {
 };
 
 export const signUp = async (user: signProps): Promise<SignUp> => {
-	const response = await httpClient.post<any>("/authen/register", user);
+	const response = await httpClient.post<SignUp>("/authen/register", user);
 	return response.data;
 };
 
